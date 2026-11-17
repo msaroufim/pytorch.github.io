@@ -229,7 +229,7 @@ model_quantized = quantize_fx.convert_fx(model_prepared)
 ```
 
 ### Post-Training Static Quantization (PTQ)
-PTQ also pre-quantizes model weights but instead of calibrating activations on-the-fly, the clipping range is pre-calibrated and fixed ("static") using representative calibration data, typically a subset of the training dataset. Calibration fits quantization parameters even though it does not require labels, so keep calibration data disjoint from the validation and test data used to evaluate accuracy. Use inference preprocessing and keep the model in evaluation mode during calibration. Activations stay in quantized precision between operations during inference. About 100 mini-batches of representative data are sufficient to calibrate the observers [[2]]. The examples below use random data in calibration for convenience - using that in your application will result in bad qparams.
+PTQ also pre-quantizes model weights but instead of calibrating activations on-the-fly, the clipping range is pre-calibrated and fixed ("static") using training data. Activations stay in quantized precision between operations during inference. About 100 mini-batches of representative data are sufficient to calibrate the observers [[2]]. The examples below use random data in calibration for convenience - using that in your application will result in bad qparams.
 
 
 <p align="center">
@@ -287,7 +287,7 @@ m.qconfig = torch.quantization.get_default_qconfig(backend)
 torch.quantization.prepare(m, inplace=True)
 
 """Calibrate
-- This example uses random data for convenience. Use representative training samples or a separate calibration set, disjoint from evaluation data, instead.
+- This example uses random data for convenience. Use representative (training) data instead.
 """
 with torch.inference_mode():
   for _ in range(10):
@@ -308,7 +308,7 @@ m.eval()
 qconfig_dict = {"": torch.quantization.get_default_qconfig(backend)}
 # Prepare
 model_prepared = quantize_fx.prepare_fx(m, qconfig_dict)
-# Calibrate - Use representative training samples or a separate calibration set, disjoint from evaluation data.
+# Calibrate - Use representative (training) data.
 with torch.inference_mode():
   for _ in range(10):
     x = torch.rand(1,2,28, 28)
